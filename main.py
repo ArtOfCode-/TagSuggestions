@@ -1,4 +1,4 @@
-from api import APIRequester, APIException
+from api import APIRequester
 import time
 import sys
 
@@ -23,6 +23,8 @@ def main():
             apiManager = APIRequester(sys.argv[index + 1])
         else:
             print("[System] [WARNING] No site specified after -s or --site switch.")
+    else:
+        apiManager = APIRequester("hardwarerecs")
 
     get_tags()
     print()
@@ -30,23 +32,41 @@ def main():
     if "-a" in sys.argv or "--all" in sys.argv:
         questions = get_all_questions()
         print()
+        print_suggested_tags(questions)
+    elif "-i" in sys.argv or "--ids" in sys.argv:
+        index = get_list_index(sys.argv, "-i", "--ids") + 1
+        ids = []
+        ids.append(sys.argv[index][1:])
+        index += 1
+        while True:
+            if "]" not in sys.argv[index]:
+                ids.append(sys.argv[index])
+                index += 1
+            else:
+                ids.append(sys.argv[index][:-1])
+                break
+        questions = get_questions(ids)
+        print()
+        print_suggested_tags(questions)
 
-        if questions is not None:
-            for question in questions:
-                print("Tags suggestions for question #{0}".format(question["id"]))
-                suggested_tags = suggest_tags(question["body"], question["tags"])
 
-                scored_tags = []
-                for k, v in suggested_tags:
-                    if v >= 6:
-                        scored_tags.append(k)
+def print_suggested_tags(questions):
+    if questions is not None:
+        for question in questions:
+            print("Tag suggestions for question #{0}".format(question["id"]))
+            suggested_tags = suggest_tags(question["body"], question["tags"])
 
-                if len(scored_tags) == 0:
-                    print("No tag suggestions for this question.")
-                else:
-                    print(", ".join(scored_tags))
-                    input("Press <Enter> to continue.")
-                print()
+            scored_tags = []
+            for k, v in suggested_tags:
+                if v >= 6:
+                    scored_tags.append(k)
+
+            if len(scored_tags) == 0:
+                print("No tag suggestions for this question.")
+            else:
+                print(", ".join(scored_tags))
+                input("Press <Enter> to continue.")
+            print()
 
 def get_tags():
     """
@@ -80,16 +100,21 @@ def get_question(id):
     """
     question_filter = "!5-dm_.B4H9w)5lg0TAHAdqVJfRO)Oe)ur3etgG"
 
+    print("Fetching question #{0}...".format(id))
+
     response, has_more, backoff = apiManager.request("/questions/" + str(id), {'filter': question_filter})
 
     if "error_id" in response:
         print("[API] [ERROR] Could not fetch question #{0}: ID {1}, name '{2}', message '{3}'".format(response["error_id"],
                                                                                        response["error_name"],
                                                                                        response["error_message"]))
-        raise APIException(response["error_id"], response["error_name"], response["error_message"])
+        return
     else:
         item = response["items"][0]
-        return item["title"], item["body"], item["tags"], item["id"]
+        if "closed_date" not in item or ("closed_date" in item and item["closed_date"] is None):
+            return item["title"], item["body"], item["tags"], item["question_id"]
+        else:
+            return None
 
 def get_questions(ids):
     """
@@ -102,14 +127,25 @@ def get_questions(ids):
         return
 
     questions = []
-    #print("Fetching questions based on ID list...")
-    for id in ids:
-        #print("Fetching question #{0}".format(id))
-        try:
-            title, body, tags, id = get_question(id)
-            questions.append({'title': title, 'body': body, 'tags': tags, 'id': id})
-        except APIException as ex:
-            print("[System] [ERROR] Upstream method threw an API error. API error ID {0}.".format(ex.id))
+    question_filter = "!5-dm_.B4H9w)5lg0TAHAdqVJfRO)Oe)ur3etgG"
+
+    id_list = ";".join(ids)
+
+    print("Fetching questions #" + ", #".join(ids) + "...")
+
+    response, has_more, backoff = apiManager.request("/questions/{0}".format(id_list), {'filter': question_filter})
+
+    if "error_id" in response:
+        print("[API] [ERROR] Could not fetch question #{0}: ID {1}, name '{2}', message '{3}'".format(response["error_id"],
+                                                                                       response["error_name"],
+                                                                                       response["error_message"]))
+        return
+    else:
+        for item in response["items"]:
+            if "closed_date" not in item or ("closed_date" in item and item["closed_date"] is None):
+                questions.append({'title': item["title"], 'body': item["body"], 'tags': item["tags"], 'id': item["question_id"]})
+            else:
+                print("Question #" + str(item["question_id"]) + " is closed.")
 
     return questions
 

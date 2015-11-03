@@ -41,7 +41,7 @@ class APIRequester:
 
         return response, has_more, backoff
 
-class APIException:
+class APIException(BaseException):
     """
     Represents an error returned from the Stack Exchange API.
     """

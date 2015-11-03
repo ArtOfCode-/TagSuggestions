@@ -7,12 +7,40 @@ TagSuggestions is written in Python 3, so you will need Python 3 installed. (Spe
 There is one dependency: the `requests` module for Python, which can be installed using
 
     pip install requests
-    
-Once you're done there, run
+
+## Running
+
+Once you're done with setup, run with the `-a` or `--all` switch:
 
     python main.py -a
+
+or
+
+    python main.py --all
     
-to start suggesting tags for all past questions on the site. There will soon be a way to suggest for specific IDs.
+to start suggesting tags for all past questions on the site.
+
+If you want to get tag suggestions for specific IDs, call the program with the `-i` or `--ids` switch, and follow it with a square-bracket
+enclosed, space-delimited list of IDs to suggest for. For example, to get suggestions for IDs 1040, 972 and 1036:
+
+    python main.py -i [1040 972 1036]
+
+or
+
+    python main.py --ids [1040 972 1036]
+
+Don't include spaces between the square brackets and the start or end of an ID.
+
+If you want to change the site that the script runs for, you can use the `-s` or `--site` switch followed by the API site name:
+
+    python main.py -s softwarerecs
+
+or
+
+    python main.py --site softwarerecs
+
+
+The API name can usually be found as the part of the URL before `.stackexchange.com`, excluding the protocol.
 
 ## License
 
