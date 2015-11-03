@@ -3,22 +3,44 @@ import time
 import sys
 
 tagNames = []
-apiManager = APIRequester()
+apiManager = None
+
+def get_list_index(list, item, alternative):
+    try:
+        return list.index(item)
+    except:
+        try:
+            return list.index(alternative)
+        except:
+            return None
 
 def main():
+    global apiManager
+
+    if "-s" in sys.argv or "--site" in sys.argv:
+        index = get_list_index(sys.argv, "-s", "--site")
+        if len(sys.argv) >= index + 2:
+            apiManager = APIRequester(sys.argv[index + 1])
+        else:
+            print("[System] [WARNING] No site specified after -s or --site switch.")
+
     get_tags()
     print()
+
     if "-a" in sys.argv or "--all" in sys.argv:
         questions = get_all_questions()
         print()
+
         if questions is not None:
             for question in questions:
                 print("Tags suggestions for question #{0}".format(question["id"]))
                 suggested_tags = suggest_tags(question["body"], question["tags"])
+
                 scored_tags = []
                 for k, v in suggested_tags:
                     if v >= 6:
                         scored_tags.append(k)
+
                 if len(scored_tags) == 0:
                     print("No tag suggestions for this question.")
                 else:

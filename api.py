@@ -5,7 +5,7 @@ class APIRequester:
     Manages requests to and responses from the Stack Exchange API.
     """
 
-    def __init__(self):
+    def __init__(self, site):
         """
         Initialises a new APIRequester object, setting default values.
         :return: A new APIRequester.
@@ -13,6 +13,7 @@ class APIRequester:
         self.client_id = 5902
         self.request_key = "GNSUb6CLudN5uRhiJfQ9Qg(("
         self.remaining_quota = None
+        self.site = site
 
     def request(self, path, data={}):
         """
@@ -21,7 +22,7 @@ class APIRequester:
         :param data: An object, containing data that will be passed in the GET request to the API.
         :return: Three values: the API response, the has_more parameter, and the backoff parameter.
         """
-        request_string = "?key=" + self.request_key + "&site=hardwarerecs&"
+        request_string = "?key=" + self.request_key + "&site=" + self.site + "&"
         for key, value in data.items():
             request_string += key + "=" + str(value) + "&"
 
