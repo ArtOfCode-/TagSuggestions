@@ -1,10 +1,14 @@
 from api import APIRequester, APIException
-from questions import Question
+import questions as qns
 import time
 import sys
 
 tagNames = []
 apiManager = None
+questionFilter = qns.QuestionFilter({
+    'score': 1,
+    'closed': False
+})
 
 def get_list_index(list, item, alternative):
     try:
@@ -112,8 +116,8 @@ def get_question(id):
     try:
         response, has_more, backoff = apiManager.request("/questions/" + str(id), {'filter': question_filter})
         item = response["items"][0]
-        question = Question(item)
-        if not question.closed and question.score >= 1:
+        question = qns.Question(item)
+        if questionFilter.filter(question):
             return question
         else:
             print("Question #{0} does not meet requirements to suggest tags for.".format(question.id))
@@ -142,13 +146,11 @@ def get_questions(ids):
     try:
         response, has_more, backoff = apiManager.request("/questions/{0}".format(id_list), {'filter': question_filter})
         for item in response["items"]:
-            question = Question(item)
-            if question.closed:
-                print("Question #{0} is closed.".format(question.id))
-            elif question.score < 1:
-                print("Question #{0} scores < 1.".format(question.id))
-            else:
+            question = qns.Question(item)
+            if questionFilter.filter(question):
                 questions.append(question)
+            else:
+                print("Question #{0} does not meet requirements to suggest for.".format(question.id))
 
         return questions
     except APIException as ex:
@@ -173,8 +175,8 @@ def get_all_questions():
             has_more = has_even_more
 
             for item in response["items"]:
-                question = Question(item)
-                if not question.closed and question.score >= 1:
+                question = qns.Question(item)
+                if questionFilter.filter(question):
                     questions.append(question)
 
             if backoff > 0:
@@ -183,7 +185,7 @@ def get_all_questions():
 
             page += 1
         except APIException as ex:
-            print("[API] [ERROR] Could not fetch tags: #{0} '{1}' - {2}".format(ex.id, ex.name, ex.message))
+            print("[API] [ERROR] Could not fetch questions: #{0} '{1}' - {2}".format(ex.id, ex.name, ex.message))
             return None
 
     return questions

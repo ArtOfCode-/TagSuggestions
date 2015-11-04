@@ -22,3 +22,23 @@ class Question:
             self.closed = True
         else:
             self.closed = False
+
+
+class QuestionFilter:
+    def __init__(self, requirements):
+        self.requirements = requirements
+
+    def filter(self, question):
+        if not isinstance(question, Question):
+            raise FilterException("A Question object must be passed for filtering.")
+        if "score" in requirements:
+            if question.score < requirements["score"]:
+                return False
+        if "closed" in requirements:
+            if question.closed != requirements["closed"]:
+                return False
+        return True
+
+
+class FilterException(BaseException):
+    pass
