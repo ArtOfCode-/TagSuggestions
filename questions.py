@@ -18,6 +18,7 @@ class Question:
         self.tags = api_item["tags"]
         self.title = api_item["title"]
         self.score = int(api_item["score"])
+
         if "closed_date" in api_item and api_item["closed_date"] is not None:
             self.closed = True
         else:
@@ -31,9 +32,11 @@ class QuestionFilter:
     def filter(self, question):
         if not isinstance(question, Question):
             raise FilterException("A Question object must be passed for filtering.")
+
         if "score" in requirements:
             if question.score < requirements["score"]:
                 return False
+
         if "closed" in requirements:
             if question.closed != requirements["closed"]:
                 return False
