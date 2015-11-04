@@ -62,7 +62,7 @@ def print_suggested_tags(questions):
     if questions is not None:
         for question in questions:
             print("Tag suggestions for question #{0}".format(question.id))
-            suggested_tags = suggest_tags(question.body, question.tags)
+            suggested_tags = suggest_tags(question.title, question.body, question.tags)
 
             scored_tags = []
             for k, v in suggested_tags:
@@ -232,7 +232,7 @@ def parse_tags_response(response):
         tagNames.append(item["name"].replace("-", " "))
 
 
-def suggest_tags(body, tags):
+def suggest_tags(title, body, tags):
     """
     Suggests tags for a question, based on its body and current tags.
     :param body: The question's body text.
@@ -249,10 +249,15 @@ def suggest_tags(body, tags):
                 suggested_tags[tag_name] += 2
             else:
                 suggested_tags[tag_name] = 2
+        if " " + tag_name + " " in title:
+            if tag_name in suggested_tags:
+                suggested_tags[tag_name] += 2
+            else:
+                suggested_tags[tag_name] = 2
 
     related_tags = get_related_tags(tags)
     if related_tags is not None:
-        for tag in related_tags:
+        for tag in iter(related_tags):
             if tag in suggested_tags:
                 suggested_tags[tag] += 1
             else:
