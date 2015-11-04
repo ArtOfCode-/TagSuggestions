@@ -1,5 +1,6 @@
 import requests
 
+
 class APIRequester:
     """
     Manages requests to and responses from the Stack Exchange API.
@@ -15,13 +16,16 @@ class APIRequester:
         self.remaining_quota = None
         self.site = site
 
-    def request(self, path, data={}):
+    def request(self, path, data):
         """
         Executes a request to the Stack Exchange API.
         :param path: The method to request, such as /questions or /tags. No need for /2.2 prefix.
         :param data: An object, containing data that will be passed in the GET request to the API.
         :return: Three values: the API response, the has_more parameter, and the backoff parameter.
         """
+        if data is None:
+            data = {}
+
         request_string = "?key=" + self.request_key + "&site=" + self.site + "&"
         for key, value in data.items():
             request_string += key + "=" + str(value) + "&"
@@ -44,19 +48,20 @@ class APIRequester:
 
         return response, has_more, backoff
 
+
 class APIException(BaseException):
     """
     Represents an error returned from the Stack Exchange API.
     """
 
-    def __init__(self, id, name, message):
+    def __init__(self, e_id, name, message):
         """
         Initialises a new APIException object. All parameters can be found in API responses.
-        :param id: The SEAPI error ID.
+        :param e_id: The SEAPI error ID.
         :param name: The SEAPI error name.
         :param message: The SEAPI error message.
         :return: A new APIException.
         """
-        self.id = id
+        self.id = e_id
         self.name = name
         self.message = message

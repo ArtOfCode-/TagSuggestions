@@ -10,14 +10,16 @@ questionFilter = qns.QuestionFilter({
     'closed': False
 })
 
-def get_list_index(list, item, alternative):
+
+def get_list_index(list_obj, item, alternative):
     try:
-        return list.index(item)
+        return list_obj.index(item)
     except:
         try:
-            return list.index(alternative)
+            return list_obj.index(alternative)
         except:
             return None
+
 
 def main():
     global apiManager
@@ -74,6 +76,7 @@ def print_suggested_tags(questions):
                 input("Press <Enter> to continue.")
             print()
 
+
 def get_tags():
     """
     Gets the API data for all tags on the site. Delegates processing of the data - see parse_tags_response.
@@ -87,7 +90,8 @@ def get_tags():
         print("Retrieving page #{0} of tags...".format(page))
 
         try:
-            response, has_even_more, backoff = apiManager.request("/tags", {'filter': tag_filter, 'pagesize': 100, 'page': page})
+            response, has_even_more, backoff = apiManager.request("/tags", {'filter': tag_filter, 'pagesize': 100,
+                                                                            'page': page})
             has_more = has_even_more
 
             parse_tags_response(response)
@@ -103,18 +107,19 @@ def get_tags():
 
     print("Finished processing all tags.")
 
-def get_question(id):
+
+def get_question(question_id):
     """
     Gets a single question from its ID.
-    :param id: The ID of the question to fetch.
+    :param question_id: The ID of the question to fetch.
     :return: Four values: the title, body, tags, and ID of the question.
     """
     question_filter = "!5-dm_.B4H9w)5lg0TAHAdqVJfRO)Oe)ur3etgG"
 
-    print("Fetching question #{0}...".format(id))
+    print("Fetching question #{0}...".format(question_id))
 
     try:
-        response, has_more, backoff = apiManager.request("/questions/" + str(id), {'filter': question_filter})
+        response, has_more, backoff = apiManager.request("/questions/" + str(question_id), {'filter': question_filter})
         item = response["items"][0]
         question = qns.Question(item)
         if questionFilter.filter(question):
@@ -125,6 +130,7 @@ def get_question(id):
     except APIException as ex:
         print("[API] [ERROR] Could not fetch tags: #{0} '{1}' - {2}".format(ex.id, ex.name, ex.message))
         return None
+
 
 def get_questions(ids):
     """
@@ -157,6 +163,7 @@ def get_questions(ids):
         print("[API] [ERROR] Could not fetch tags: #{0} '{1}' - {2}".format(ex.id, ex.name, ex.message))
         return None
 
+
 def get_all_questions():
     """
     Gets a list of questions, based on most recently active.
@@ -171,7 +178,8 @@ def get_all_questions():
         print("Fetching page #{0} of questions...".format(page))
 
         try:
-            response, has_even_more, backoff = apiManager.request("/questions", {'filter': question_filter, 'pagesize': 100, 'page': page})
+            response, has_even_more, backoff = apiManager.request("/questions", {'filter': question_filter,
+                                                                                 'pagesize': 100, 'page': page})
             has_more = has_even_more
 
             for item in response["items"]:
@@ -190,10 +198,11 @@ def get_all_questions():
 
     return questions
 
+
 def get_related_tags(tags):
     """
     Gets a list of tags that the Stack Exchange engine considers related to the tags given.
-    :param tag_name: A list of tag names to find related tags for.
+    :param tags: A list of tag names to find related tags for.
     :return: A list containing names of related tags.
     """
     while len(tags) > 4:
@@ -212,6 +221,7 @@ def get_related_tags(tags):
         print("[API] [ERROR] Could not fetch tags: #{0} '{1}' - {2}".format(ex.id, ex.name, ex.message))
         return None
 
+
 def parse_tags_response(response):
     """
     Populates a list of tag names based on an API response.
@@ -220,6 +230,7 @@ def parse_tags_response(response):
     """
     for item in response["items"]:
         tagNames.append(item["name"].replace("-", " "))
+
 
 def suggest_tags(body, tags):
     """
@@ -260,13 +271,11 @@ def suggest_tags(body, tags):
     for tag in remove_tags:
         del suggested_tags[tag]
 
-    sorted_tags = sorted(suggested_tags.items(), key = lambda x: x[1], reverse = True)
+    sorted_tags = sorted(suggested_tags.items(), key=lambda x: x[1], reverse=True)
     while len(sorted_tags) > (5 - len(tags)):
         del sorted_tags[-1]
 
     return sorted_tags
-
-
 
 
 main()
