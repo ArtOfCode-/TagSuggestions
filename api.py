@@ -32,6 +32,9 @@ class APIRequester:
         has_more = False
         backoff = 0
 
+        if "error_id" in response:
+            raise APIException(response["error_id"], response["error_name"], response["error_message"])
+
         if "quota_remaining" in response:
             self.remaining_quota = response["quota_remaining"]
         if "has_more" in response and response["has_more"] is True:

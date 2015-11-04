@@ -1,4 +1,4 @@
-from api import APIRequester
+from api import APIRequester, APIException
 import time
 import sys
 
@@ -23,6 +23,7 @@ def main():
             apiManager = APIRequester(sys.argv[index + 1])
         else:
             print("[System] [WARNING] No site specified after -s or --site switch.")
+            apiManager = APIRequester("hardwarerecs")
     else:
         apiManager = APIRequester("hardwarerecs")
 
@@ -77,9 +78,16 @@ def get_tags():
     has_more = True
     page = 1
 
-    while has_more:
+    while has_more and page <= 20:
         print("Retrieving page #{0} of tags...".format(page))
-        response, has_even_more, backoff = apiManager.request("/tags", {'filter': tag_filter, 'pagesize': 100, 'page': page})
+
+        response, has_even_more, backoff = None
+        try:
+            response, has_even_more, backoff = apiManager.request("/tags", {'filter': tag_filter, 'pagesize': 100, 'page': page})
+        except APIException as ex:
+            print("[API] [ERROR] Could not fetch tags: #{0} '{1}' - {2}".format(ex.id, ex.name, ex.message))
+            continue
+
         has_more = has_even_more
 
         parse_tags_response(response)
@@ -102,19 +110,18 @@ def get_question(id):
 
     print("Fetching question #{0}...".format(id))
 
-    response, has_more, backoff = apiManager.request("/questions/" + str(id), {'filter': question_filter})
+    response, has_more, backoff = None
+    try:
+        apiManager.request("/questions/" + str(id), {'filter': question_filter})
+    except APIException as ex:
+        print("[API] [ERROR] Could not fetch tags: #{0} '{1}' - {2}".format(ex.id, ex.name, ex.message))
+        return None
 
-    if "error_id" in response:
-        print("[API] [ERROR] Could not fetch question #{0}: ID {1}, name '{2}', message '{3}'".format(response["error_id"],
-                                                                                       response["error_name"],
-                                                                                       response["error_message"]))
-        return
+    item = response["items"][0]
+    if "closed_date" not in item or ("closed_date" in item and item["closed_date"] is None):
+        return item["title"], item["body"], item["tags"], item["question_id"]
     else:
-        item = response["items"][0]
-        if "closed_date" not in item or ("closed_date" in item and item["closed_date"] is None):
-            return item["title"], item["body"], item["tags"], item["question_id"]
-        else:
-            return None
+        return None
 
 def get_questions(ids):
     """
@@ -133,19 +140,18 @@ def get_questions(ids):
 
     print("Fetching questions #" + ", #".join(ids) + "...")
 
-    response, has_more, backoff = apiManager.request("/questions/{0}".format(id_list), {'filter': question_filter})
+    response, has_more, backoff = None
+    try:
+        apiManager.request("/questions/{0}".format(id_list), {'filter': question_filter})
+    except APIException as ex:
+        print("[API] [ERROR] Could not fetch tags: #{0} '{1}' - {2}".format(ex.id, ex.name, ex.message))
+        return None
 
-    if "error_id" in response:
-        print("[API] [ERROR] Could not fetch question #{0}: ID {1}, name '{2}', message '{3}'".format(response["error_id"],
-                                                                                       response["error_name"],
-                                                                                       response["error_message"]))
-        return
-    else:
-        for item in response["items"]:
-            if "closed_date" not in item or ("closed_date" in item and item["closed_date"] is None):
-                questions.append({'title': item["title"], 'body': item["body"], 'tags': item["tags"], 'id': item["question_id"]})
-            else:
-                print("Question #" + str(item["question_id"]) + " is closed.")
+    for item in response["items"]:
+        if "closed_date" not in item or ("closed_date" in item and item["closed_date"] is None):
+            questions.append({'title': item["title"], 'body': item["body"], 'tags': item["tags"], 'id': item["question_id"]})
+        else:
+            print("Question #" + str(item["question_id"]) + " is closed.")
 
     return questions
 
@@ -155,20 +161,21 @@ def get_all_questions():
     has_more = True
     page = 1
 
-    while has_more:
+    while has_more and page <= 20:
         print("Fetching page #{0} of questions...".format(page))
-        response, has_even_more, backoff = apiManager.request("/questions", {'filter': question_filter, 'pagesize': 100, 'page': page})
+
+        response, has_even_more, backoff = None
+        try:
+            apiManager.request("/questions", {'filter': question_filter, 'pagesize': 100, 'page': page})
+        except APIException as ex:
+            print("[API] [ERROR] Could not fetch tags: #{0} '{1}' - {2}".format(ex.id, ex.name, ex.message))
+            return None
+
         has_more = has_even_more
 
-        if "error_id" in response:
-            print("[API] [ERROR] Could not fetch questions: ID {0}, name '{1}', message '{2}'.".format(response["error_id"],
-                                                                                                       response["error_name"],
-                                                                                                       response["error_message"]))
-            return
-        else:
-            for item in response["items"]:
-                if "closed_date" not in item or ("closed_date" in item and item["closed_date"] is None):
-                    questions.append({'title': item["title"], 'body': item["body"], 'tags': item["tags"], 'id': item["question_id"]})
+        for item in response["items"]:
+            if "closed_date" not in item or ("closed_date" in item and item["closed_date"] is None):
+                questions.append({'title': item["title"], 'body': item["body"], 'tags': item["tags"], 'id': item["question_id"]})
 
         if backoff > 0:
             print("Back-off received, waiting {0} seconds before repeating request.".format(backoff))
@@ -190,18 +197,17 @@ def get_related_tags(tags):
     tag_filter = ".IrqzSiB8kWl"
     tag_string = ";".join(tags)
 
-    response, has_more, backoff = apiManager.request("/tags/{0}/related".format(tag_string), {'filter': tag_filter})
+    response, has_more, backoff = None
+    try:
+        apiManager.request("/tags/{0}/related".format(tag_string), {'filter': tag_filter})
+    except APIException as ex:
+        print("[API] [ERROR] Could not fetch tags: #{0} '{1}' - {2}".format(ex.id, ex.name, ex.message))
+        return None
 
-    if "error_id" in response:
-        print("[API] [ERROR] Could not get related tags: ID {0}, name '{1}', message '{2}'.".format(response["error_id"],
-                                                                                                    response["error_name"],
-                                                                                                    response["error_message"]))
-        return
-    else:
-        tags = []
-        for item in response["items"]:
-            tags.append(item["name"].replace("-", " "))
-        return tags
+    tags = []
+    for item in response["items"]:
+        tags.append(item["name"].replace("-", " "))
+    return tags
 
 def parse_tags_response(response):
     """
@@ -209,14 +215,8 @@ def parse_tags_response(response):
     :param response: An API response object, where items is a list of tag objects.
     :return: None. However, the tagNames variable is populated by this method.
     """
-    if "error_id" in response:
-        print("[API] [ERROR] Could not fetch tags: ID {0}, name '{1}', message '{2}'.".format(response["error_id"],
-                                                                               response["error_name"],
-                                                                               response["error_message"]))
-        return
-    else:
-        for item in response["items"]:
-            tagNames.append(item["name"].replace("-", " "))
+    for item in response["items"]:
+        tagNames.append(item["name"].replace("-", " "))
 
 def suggest_tags(body, tags):
     """
@@ -237,16 +237,17 @@ def suggest_tags(body, tags):
                 suggested_tags[tag_name] = 2
 
     related_tags = get_related_tags(tags)
-    for tag in related_tags:
-        if tag in suggested_tags:
-            suggested_tags[tag] += 1
-        else:
-            suggested_tags[tag] = 1
-        if " " + tag + " " in body:
+    if related_tags is not None:
+        for tag in related_tags:
             if tag in suggested_tags:
-                suggested_tags[tag] += 3
+                suggested_tags[tag] += 1
             else:
-                suggested_tags[tag] = 3
+                suggested_tags[tag] = 1
+            if " " + tag + " " in body:
+                if tag in suggested_tags:
+                    suggested_tags[tag] += 3
+                else:
+                    suggested_tags[tag] = 3
 
     remove_tags = []
     for tag, score in suggested_tags.items():
