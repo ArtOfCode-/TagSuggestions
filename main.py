@@ -1,4 +1,5 @@
 from api import APIRequester, APIException
+from questions import Question
 import time
 import sys
 
@@ -54,8 +55,8 @@ def main():
 def print_suggested_tags(questions):
     if questions is not None:
         for question in questions:
-            print("Tag suggestions for question #{0}".format(question["id"]))
-            suggested_tags = suggest_tags(question["body"], question["tags"])
+            print("Tag suggestions for question #{0}".format(question.id))
+            suggested_tags = suggest_tags(question.body, question.tags)
 
             scored_tags = []
             for k, v in suggested_tags:
@@ -111,9 +112,11 @@ def get_question(id):
     try:
         response, has_more, backoff = apiManager.request("/questions/" + str(id), {'filter': question_filter})
         item = response["items"][0]
-        if "closed_date" not in item or ("closed_date" in item and item["closed_date"] is None):
-            return item["title"], item["body"], item["tags"], item["question_id"]
+        question = Question(item)
+        if not question.closed and question.score >= 1:
+            return question
         else:
+            print("Question #{0} does not meet requirements to suggest tags for.".format(question.id))
             return None
     except APIException as ex:
         print("[API] [ERROR] Could not fetch tags: #{0} '{1}' - {2}".format(ex.id, ex.name, ex.message))
@@ -123,7 +126,7 @@ def get_questions(ids):
     """
     Gets a list of question objects, one for each ID passed in ids.
     :param ids: A list of IDs to return question objects for.
-    :return: A list of objects representing questions, each with title, body, and tags fields.
+    :return: A list of Question objects.
     """
     if len(ids) > 100:
         print("[System] [ERROR] Number of IDs passed to get_questions(ids) cannot be > 100.")
@@ -139,10 +142,13 @@ def get_questions(ids):
     try:
         response, has_more, backoff = apiManager.request("/questions/{0}".format(id_list), {'filter': question_filter})
         for item in response["items"]:
-            if "closed_date" not in item or ("closed_date" in item and item["closed_date"] is None):
-                questions.append({'title': item["title"], 'body': item["body"], 'tags': item["tags"], 'id': item["question_id"]})
+            question = Question(item)
+            if question.closed:
+                print("Question #{0} is closed.".format(question.id))
+            elif question.score < 1:
+                print("Question #{0} scores < 1.".format(question.id))
             else:
-                print("Question #" + str(item["question_id"]) + " is closed.")
+                questions.append(question)
 
         return questions
     except APIException as ex:
@@ -150,6 +156,10 @@ def get_questions(ids):
         return None
 
 def get_all_questions():
+    """
+    Gets a list of questions, based on most recently active.
+    :return: A list of Question objects.
+    """
     questions = []
     question_filter = "!5-dm_.B4H9w)5lg0TAHAdqVJfRO)Oe)ur3etgG"
     has_more = True
@@ -163,8 +173,9 @@ def get_all_questions():
             has_more = has_even_more
 
             for item in response["items"]:
-                if "closed_date" not in item or ("closed_date" in item and item["closed_date"] is None):
-                    questions.append({'title': item["title"], 'body': item["body"], 'tags': item["tags"], 'id': item["question_id"]})
+                question = Question(item)
+                if not question.closed and question.score >= 1:
+                    questions.append(question)
 
             if backoff > 0:
                 print("Back-off received, waiting {0} seconds before repeating request.".format(backoff))
