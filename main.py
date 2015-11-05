@@ -278,7 +278,7 @@ def suggest_tags(title, body, tags):
         if tag in tags:
             remove_tags.append(tag)
         for question_tag in tags:
-            if tag in question_tag:
+            if tag in question_tag and tag not in remove_tags:
                 remove_tags.append(tag)
 
     for tag in remove_tags:
