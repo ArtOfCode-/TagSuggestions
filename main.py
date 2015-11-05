@@ -244,7 +244,7 @@ def suggest_tags(title, body, tags):
     body = body.lower()
 
     # remove anything in a preformatted code span; these were causing errors
-    re.sub(r'\<pre\>(.*?)\<\/pre\>', '', body, flags=re.DOTALL)
+    re.sub(r'<pre>(.*?)</pre>', '', body, flags=re.DOTALL)
 
     suggested_tags = {}
 
