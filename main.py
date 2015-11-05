@@ -128,7 +128,7 @@ def get_question(question_id):
             print("Question #{0} does not meet requirements to suggest tags for.".format(question.id))
             return None
     except APIException as ex:
-        print("[API] [ERROR] Could not fetch tags: #{0} '{1}' - {2}".format(ex.id, ex.name, ex.message))
+        print("[API] [ERROR] Could not fetch question: #{0} '{1}' - {2}".format(ex.id, ex.name, ex.message))
         return None
 
 
@@ -160,7 +160,7 @@ def get_questions(ids):
 
         return questions
     except APIException as ex:
-        print("[API] [ERROR] Could not fetch tags: #{0} '{1}' - {2}".format(ex.id, ex.name, ex.message))
+        print("[API] [ERROR] Could not fetch questions: #{0} '{1}' - {2}".format(ex.id, ex.name, ex.message))
         return None
 
 
