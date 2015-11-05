@@ -33,12 +33,12 @@ class QuestionFilter:
         if not isinstance(question, Question):
             raise FilterException("A Question object must be passed for filtering.")
 
-        if "score" in requirements:
-            if question.score < requirements["score"]:
+        if "score" in self.requirements:
+            if question.score < self.requirements["score"]:
                 return False
 
-        if "closed" in requirements:
-            if question.closed != requirements["closed"]:
+        if "closed" in self.requirements:
+            if question.closed != self.requirements["closed"]:
                 return False
         return True
 
