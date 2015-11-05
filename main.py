@@ -2,6 +2,7 @@ from api import APIRequester, APIException
 import questions as qns
 import time
 import sys
+import re
 
 tagNames = []
 apiManager = None
@@ -232,7 +233,7 @@ def parse_tags_response(response):
         tagNames.append(item["name"].replace("-", " "))
 
 
-# Algorithm revision 2015.11.05.22B
+# Algorithm revision 2015.11.05.23B
 def suggest_tags(title, body, tags):
     """
     Suggests tags for a question, based on its body and current tags.
@@ -241,6 +242,9 @@ def suggest_tags(title, body, tags):
     :return: A list containing suggested tag names.
     """
     body = body.lower()
+
+    # remove anything in a preformatted code span; these were causing errors
+    re.sub(r'\<pre\>(.*?)\<\/pre\>', '', body, flags=re.DOTALL)
 
     suggested_tags = {}
 
