@@ -17,7 +17,7 @@ class Question:
         self.body = api_item["body"]
         self.tags = api_item["tags"]
         self.title = api_item["title"]
-        self.score = int(api_item["question_score"])
+        self.score = int(api_item["score"])
 
         if "closed_date" in api_item and api_item["closed_date"] is not None:
             self.closed = True
