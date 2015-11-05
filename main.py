@@ -232,7 +232,7 @@ def parse_tags_response(response):
         tagNames.append(item["name"].replace("-", " "))
 
 
-# Algorithm revision 2015.11.05.21B
+# Algorithm revision 2015.11.05.22B
 def suggest_tags(title, body, tags):
     """
     Suggests tags for a question, based on its body and current tags.
@@ -273,6 +273,9 @@ def suggest_tags(title, body, tags):
     for tag, score in suggested_tags.items():
         if tag in tags:
             remove_tags.append(tag)
+        for question_tag in tags:
+            if tag in question_tag:
+                remove_tags.append(tag)
 
     for tag in remove_tags:
         del suggested_tags[tag]
