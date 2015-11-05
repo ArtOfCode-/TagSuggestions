@@ -114,7 +114,7 @@ def get_question(question_id):
     :param question_id: The ID of the question to fetch.
     :return: Four values: the title, body, tags, and ID of the question.
     """
-    question_filter = "!5-dm_.B4H9w)5lg0TAHAdqVJfRO)Oe)ur3etgG"
+    question_filter = "!gB66oJbwvgwG7j98E2D9v2aYulgjnMOAQ0S"
 
     print("Fetching question #{0}...".format(question_id))
 
@@ -143,7 +143,7 @@ def get_questions(ids):
         return
 
     questions = []
-    question_filter = "!5-dm_.B4H9w)5lg0TAHAdqVJfRO)Oe)ur3etgG"
+    question_filter = "!gB66oJbwvgwG7j98E2D9v2aYulgjnMOAQ0S"
 
     id_list = ";".join(ids)
 
@@ -170,7 +170,7 @@ def get_all_questions():
     :return: A list of Question objects.
     """
     questions = []
-    question_filter = "!5-dm_.B4H9w)5lg0TAHAdqVJfRO)Oe)ur3etgG"
+    question_filter = "!gB66oJbwvgwG7j98E2D9v2aYulgjnMOAQ0S"
     has_more = True
     page = 1
 
