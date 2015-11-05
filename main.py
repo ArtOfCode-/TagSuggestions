@@ -86,7 +86,7 @@ def get_tags():
     has_more = True
     page = 1
 
-    while has_more and page <= 20:
+    while has_more and page <= 8:
         print("Retrieving page #{0} of tags...".format(page))
 
         try:
@@ -174,7 +174,7 @@ def get_all_questions():
     has_more = True
     page = 1
 
-    while has_more and page <= 20:
+    while has_more and page <= 10:
         print("Fetching page #{0} of questions...".format(page))
 
         try:
