@@ -1,4 +1,4 @@
-import questions
+from .. import questions
 from unittest import TestCase
 
 

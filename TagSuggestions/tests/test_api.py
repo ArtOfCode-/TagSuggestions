@@ -1,4 +1,4 @@
-import api
+from TagSuggestions import api
 from unittest import TestCase
 
 

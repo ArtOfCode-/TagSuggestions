@@ -1,0 +1,2 @@
+import TagSuggestions.tests.test_api
+import TagSuggestions.tests.test_question
