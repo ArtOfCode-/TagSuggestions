@@ -45,15 +45,18 @@ def main():
     elif "-i" in sys.argv or "--ids" in sys.argv:
         index = get_list_index(sys.argv, "-i", "--ids") + 1
         ids = []
-        ids.append(sys.argv[index][1:])
-        index += 1
-        while True:
-            if "]" not in sys.argv[index]:
-                ids.append(sys.argv[index])
-                index += 1
-            else:
-                ids.append(sys.argv[index][:-1])
-                break
+        if len(sys.argv) == 3:
+            ids.append(sys.argv[index][1:-1])
+        else:
+            ids.append(sys.argv[index][1:])
+            index += 1
+            while True:
+                if "]" not in sys.argv[index]:
+                    ids.append(sys.argv[index])
+                    index += 1
+                else:
+                    ids.append(sys.argv[index][:-1])
+                    break
         questions = get_questions(ids)
         print()
         print_suggested_tags(questions)
