@@ -40,13 +40,13 @@ class TestQuestion(TestCase):
 
     def test_question_init(self):
         try:
-            q = questions.Question(self.dummy_item)
+            questions.Question(self.dummy_item)
         except:
             self.fail("questions.Question.__init__ throws unexpected error")
 
     def test_question_error_init(self):
         try:
-            q = questions.Question(self.dummy_error_item)
+            questions.Question(self.dummy_error_item)
         except KeyError:
             pass
         else:
@@ -62,7 +62,7 @@ class TestQuestion(TestCase):
 
     def test_filter_error(self):
         try:
-            f = self.filter.filter(None)
+            self.filter.filter(None)
         except questions.FilterException:
             pass
         else:
