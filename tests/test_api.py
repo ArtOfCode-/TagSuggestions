@@ -3,10 +3,9 @@ from unittest import TestCase
 
 
 class TestApi(TestCase):
-    apiRequester = None
+    apiRequester = api.APIRequester("stackoverflow")
 
     def test_init(self):
-        self.apiRequester = api.APIRequester("stackoverflow")
         self.assertTrue(isinstance(self.apiRequester, api.APIRequester))
         self.assertEqual("stackoverflow", self.apiRequester.site)
 
