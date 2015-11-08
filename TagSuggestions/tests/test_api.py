@@ -1,8 +1,8 @@
 from TagSuggestions import api
-from unittest import TestCase
+import unittest as ut
 
 
-class TestApi(TestCase):
+class TestApi(ut.TestCase):
     apiRequester = api.APIRequester("stackoverflow")
 
     def test_init(self):
@@ -22,3 +22,7 @@ class TestApi(TestCase):
             self.assertTrue(ex.id is not None and ex.message is not None and ex.name is not None)
         else:
             self.fail("API did not provide error on nonexistent method")
+
+
+def get_tests():
+    return ut.TestLoader().loadTestsFromTestCase(TestApi)
