@@ -5,5 +5,4 @@ python:
   - "3.4"
 install: pip install requests
 script:
-  - python tests/test_api.py
-  - python tests/test_question.py
+  - python run_tests.py
