@@ -3,6 +3,8 @@ python:
   - "3.2"
   - "3.3"
   - "3.4"
-install: pip install requests
+install:
+  - pip install --upgrade pip
+  - pip install requests
 script:
   - python run_tests.py
