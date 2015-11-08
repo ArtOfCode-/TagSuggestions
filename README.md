@@ -1,4 +1,4 @@
-# TagSuggestions
+# TagSuggestions [![Build Status](https://travis-ci.org/ArtOfCode-/TagSuggestions.svg?branch=master)](https://travis-ci.org/ArtOfCode-/TagSuggestions)
 A simple Python script for suggesting tags on Hardware Recommendations questions.
 
 ## Setup
