@@ -6,5 +6,5 @@ python:
 install: pip install requests
 script:
   - cd tests
-  - test_api.py
-  - test_question.py
+  - python test_api.py
+  - python test_question.py
