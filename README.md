@@ -1,5 +1,5 @@
 # TagSuggestions [![Build Status](https://travis-ci.org/ArtOfCode-/TagSuggestions.svg?branch=master)](https://travis-ci.org/ArtOfCode-/TagSuggestions)
-A simple Python script for suggesting tags on Hardware Recommendations questions.
+A simple Python script for suggesting tags on Stack Exchange questions.
 
 ## Setup
 TagSuggestions is written in Python 3, so you will need Python 3 installed. (Specifically, I wrote it in 3.4.3, if you care or need to know.)
@@ -18,7 +18,7 @@ or
 
     python main.py --all
     
-to start suggesting tags for all past questions on the site.
+to start suggesting tags for the last 10 pages of questions sorted by activity.
 
 If you want to get tag suggestions for specific IDs, call the program with the `-i` or `--ids` switch, and follow it with a square-bracket
 enclosed, space-delimited list of IDs to suggest for. For example, to get suggestions for IDs 1040, 972 and 1036:
@@ -40,7 +40,9 @@ or
     python main.py --site softwarerecs
 
 
-The API name can usually be found as the part of the URL before `.stackexchange.com`, excluding the protocol.
+The API name can usually be found as the part of the URL before `.stackexchange.com`, excluding the protocol. Bear in mind that the 
+script works best on sites that have plenty of well-used tags: it was originally designed for [Hardware Recommendations](http://hardwarerecs.stackexchange.com)
+but works better on larger sites.
 
 ## License
 
