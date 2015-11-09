@@ -1,24 +1,31 @@
-from api import APIRequester, APIException
-import questions as qns
+if __name__ == "__main__":
+    from api import APIRequester, APIException
+    from questions import *
+else:
+    from .api import APIRequester, APIException
+    from .questions import *
 import time
 import sys
 import re
 
 tagNames = []
 apiManager = None
-questionFilter = qns.QuestionFilter({
+questionFilter = QuestionFilter({
     'score': 1,
     'closed': False
 })
 
 
-def get_list_index(list_obj, item, alternative):
+def get_list_index(list_obj, item, alternative=None):
     try:
         return list_obj.index(item)
     except:
-        try:
-            return list_obj.index(alternative)
-        except:
+        if alternative is not None:
+            try:
+                return list_obj.index(alternative)
+            except:
+                return None
+        else:
             return None
 
 
@@ -232,7 +239,7 @@ def parse_tags_response(response):
 
 
 # Algorithm revision 2015.11.09.25B
-def suggest_tags(title, body, tags):
+def suggest_tags(title, body, tags, related_tags=None, verbose=False):
     """
     Suggests tags for a question, based on its body and current tags.
     :param body: The question's body text.
@@ -247,36 +254,46 @@ def suggest_tags(title, body, tags):
     suggested_tags = {}
 
     for tag_name in tagNames:
+        if verbose: print("Checking tag name: {0}".format(tag_name))
         if " " + tag_name + " " in body:
+            count = body.count(" " + tag_name + " ") * 2  # * 2 because it was returning half-count for some reason
+            if verbose: print("Tag in body: +{0} instances".format(str(count)))
             if tag_name in suggested_tags:
-                suggested_tags[tag_name] += body.count(" " + tag_name + " ")
+                suggested_tags[tag_name] += count
             else:
-                suggested_tags[tag_name] = body.count(" " + tag_name + " ")
+                suggested_tags[tag_name] = count
         if " " + tag_name + " " in title:
+            if verbose: print("Tag in title: +2")
             if tag_name in suggested_tags:
                 suggested_tags[tag_name] += 2
             else:
                 suggested_tags[tag_name] = 2
 
-    related_tags = get_related_tags(tags)
+    if related_tags is None:
+        related_tags = get_related_tags(tags)
+
     if related_tags is not None:
         for tag in iter(related_tags):
+            if verbose: print("Related tag '{0}' +1".format(tag))
             if tag in suggested_tags:
                 suggested_tags[tag] += 1
             else:
                 suggested_tags[tag] = 1
             if " " + tag + " " in body:
+                if verbose: print("Related tag in body: +2")
                 if tag in suggested_tags:
-                    suggested_tags[tag] += 3
+                    suggested_tags[tag] += 2
                 else:
-                    suggested_tags[tag] = 3
+                    suggested_tags[tag] = 2
 
     remove_tags = []
     for tag, score in suggested_tags.items():
         if tag in tags:
+            if verbose: print("Tag '{0}' already on question: remove".format(tag))
             remove_tags.append(tag)
         for question_tag in tags:
             if tag in question_tag and tag not in remove_tags:
+                if verbose: print("Tag '{0}' is a superset of question tag '{1}': remove".format(tag, question_tag))
                 remove_tags.append(tag)
 
     for tag in remove_tags:
@@ -287,11 +304,13 @@ def suggest_tags(title, body, tags):
         del sorted_tags[-1]
 
     scored_tags = []
+    if verbose: print("Tags sorted by score:")
     for k, v in sorted_tags:
+        if verbose: print("'{0}': {1}".format(k, str(v)))
         if v >= 7:
             scored_tags.append(k)
 
     return scored_tags
 
-
-main()
+if __name__ == "__main__":
+    main()
