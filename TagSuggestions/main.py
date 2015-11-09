@@ -68,12 +68,10 @@ def print_suggested_tags(questions):
             print("Tag suggestions for question #{0}".format(question.id))
             suggested_tags = suggest_tags(question.title, question.body, question.tags)
 
-
-
-            if len(scored_tags) == 0:
+            if len(suggested_tags) == 0:
                 print("No tag suggestions for this question.")
             else:
-                print(", ".join(scored_tags))
+                print(", ".join(suggested_tags))
                 input("Press <Enter> to continue.")
             print()
 
