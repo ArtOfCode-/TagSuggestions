@@ -68,10 +68,7 @@ def print_suggested_tags(questions):
             print("Tag suggestions for question #{0}".format(question.id))
             suggested_tags = suggest_tags(question.title, question.body, question.tags)
 
-            scored_tags = []
-            for k, v in suggested_tags:
-                if v >= 6:
-                    scored_tags.append(k)
+
 
             if len(scored_tags) == 0:
                 print("No tag suggestions for this question.")
@@ -236,7 +233,7 @@ def parse_tags_response(response):
         tagNames.append(item["name"].replace("-", " "))
 
 
-# Algorithm revision 2015.11.06.24B
+# Algorithm revision 2015.11.09.25B
 def suggest_tags(title, body, tags):
     """
     Suggests tags for a question, based on its body and current tags.
@@ -291,7 +288,12 @@ def suggest_tags(title, body, tags):
     while len(sorted_tags) > (5 - len(tags)):
         del sorted_tags[-1]
 
-    return sorted_tags
+    scored_tags = []
+    for k, v in sorted_tags:
+        if v >= 7:
+            scored_tags.append(k)
+
+    return scored_tags
 
 
 main()
