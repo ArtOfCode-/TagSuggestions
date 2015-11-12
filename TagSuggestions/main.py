@@ -1,6 +1,6 @@
 if __name__ == "__main__":
     from api import APIRequester, APIException
-    import questions as qns
+    from questions import *
 else:
     from .api import APIRequester, APIException
     from .questions import *
@@ -10,7 +10,7 @@ import re
 
 tagNames = []
 apiManager = None
-questionFilter = qns.QuestionFilter({
+questionFilter = QuestionFilter({
     'score': 1,
     'closed': False
 })
@@ -127,7 +127,7 @@ def get_question(question_id):
     try:
         response, has_more, backoff = apiManager.request("/questions/" + str(question_id), {'filter': question_filter})
         item = response["items"][0]
-        question = qns.Question(item)
+        question = Question(item)
         if questionFilter.filter(question):
             return question
         else:
@@ -158,7 +158,7 @@ def get_questions(ids):
     try:
         response, has_more, backoff = apiManager.request("/questions/{0}".format(id_list), {'filter': question_filter})
         for item in response["items"]:
-            question = qns.Question(item)
+            question = Question(item)
             if questionFilter.filter(question):
                 questions.append(question)
             else:
@@ -189,7 +189,7 @@ def get_all_questions():
             has_more = has_even_more
 
             for item in response["items"]:
-                question = qns.Question(item)
+                question = Question(item)
                 if questionFilter.filter(question):
                     questions.append(question)
 
