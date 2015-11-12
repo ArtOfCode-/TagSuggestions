@@ -1,6 +1,6 @@
 if __name__ == "__main__":
     from api import APIRequester, APIException
-    from questions import *
+    import questions as qns
 else:
     from .api import APIRequester, APIException
     from .questions import *
@@ -10,7 +10,7 @@ import re
 
 tagNames = []
 apiManager = None
-questionFilter = QuestionFilter({
+questionFilter = qns.QuestionFilter({
     'score': 1,
     'closed': False
 })
