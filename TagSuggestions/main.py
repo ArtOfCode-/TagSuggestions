@@ -1,19 +1,35 @@
 if __name__ == "__main__":
     from api import APIRequester, APIException
     from questions import *
+    from database import *
 else:
     from .api import APIRequester, APIException
     from .questions import *
+    from .database import *
+
 import time
 import sys
 import re
+import getpass
+import mysql.connector as mysql
 
 tagNames = []
+blacklistedTagNames = []
+
 apiManager = None
+queryManager = None
+
 questionFilter = QuestionFilter({
     'score': 1,
     'closed': False
 })
+
+dbCredentials = {
+    'host': None,
+    'user': None,
+    'pass': None,
+    'name': None
+}
 
 
 def get_list_index(list_obj, item, alternative=None):
@@ -29,8 +45,42 @@ def get_list_index(list_obj, item, alternative=None):
             return None
 
 
+def populate_db_creds():
+    if "--db-host" in sys.argv and "--db-user" in sys.argv and "--db-name" in sys.argv:
+        host_index = get_list_index(sys.argv, "--db-host") + 1
+        user_index = get_list_index(sys.argv, "--db-user") + 1
+        name_index = get_list_index(sys.argv, "--db-name") + 1
+        if len(sys.argv) >= host_index:
+            dbCredentials['host'] = sys.argv[host_index]
+        if len(sys.argv) >= user_index:
+            dbCredentials['user'] = sys.argv[user_index]
+        if len(sys.argv) >= name_index:
+            dbCredentials['name'] = sys.argv[name_index]
+        dbCredentials['pass'] = getpass.getpass("Database password: ")
+        return True
+    else:
+        return False
+
+
+
 def main():
     global apiManager
+    global queryManager
+
+    db_available = populate_db_creds()
+    if db_available:
+        try:
+            queryManager = QueryManager(dbCredentials['host'], dbCredentials['user'], dbCredentials['pass'],
+                                        dbCredentials['name'])
+        except mysql.Error as ex:
+            if ex.errno == mysql.errorcode.ER_ACCESS_DENIED_ERROR:
+                print("Error connecting to database: access denied. Username/password combination is incorrect.")
+            elif ex.errno == mysql.errorcode.ER_BAD_DB_ERROR:
+                print("Error connecting to database: DB does not exist.")
+            else:
+                print("Error connecting to database:")
+                print(ex)
+            db_available = False
 
     if "-s" in sys.argv or "--site" in sys.argv:
         index = get_list_index(sys.argv, "-s", "--site")
@@ -42,6 +92,8 @@ def main():
     else:
         apiManager = APIRequester("hardwarerecs")
 
+    if db_available:
+        get_blacklisted_tags()
     get_tags()
     print()
 
@@ -112,6 +164,18 @@ def get_tags():
             continue
 
     print("Finished processing all tags.")
+
+
+def get_blacklisted_tags():
+    """
+    Retrieves and processes a list of blacklisted tags from a database.
+    :return: None - but the blacklistedTagNames object is populated.
+    """
+    global queryManager
+    results = queryManager.query("SELECT TagName FROM BlacklistedTags")
+    for (tag) in results:
+        blacklistedTagNames.append(tag)
+    queryManager.dispose(results)
 
 
 def get_question(question_id):
