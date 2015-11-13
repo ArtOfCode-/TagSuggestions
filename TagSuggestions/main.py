@@ -2,6 +2,7 @@ if __name__ == "__main__":
     from api import APIRequester, APIException
     from questions import *
     from database import *
+    import mysql.connector as mysql
 else:
     from .api import APIRequester, APIException
     from .questions import *
@@ -11,7 +12,6 @@ import time
 import sys
 import re
 import getpass
-import mysql.connector as mysql
 
 tagNames = []
 blacklistedTagNames = []
