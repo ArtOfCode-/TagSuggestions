@@ -6,7 +6,6 @@ if __name__ == "__main__":
 else:
     from .api import APIRequester, APIException
     from .questions import *
-    from .database import *
 
 import time
 import sys
