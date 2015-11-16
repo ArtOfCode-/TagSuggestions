@@ -182,7 +182,7 @@ def get_blacklisted_tags():
         "sn": siteName
     })
     for (tag) in results:
-        blacklistedTagNames.append(tag)
+        blacklistedTagNames.append(tag[0])
     queryManager.dispose(results)
 
 
