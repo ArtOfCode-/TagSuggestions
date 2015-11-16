@@ -124,6 +124,8 @@ def main():
         print()
         print_suggested_tags(questions)
 
+    queryManager.dispose()
+
 
 def print_suggested_tags(questions):
     if questions is not None:
