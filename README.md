@@ -1,6 +1,8 @@
 # TagSuggestions [![Build Status](https://travis-ci.org/ArtOfCode-/TagSuggestions.svg?branch=master)](https://travis-ci.org/ArtOfCode-/TagSuggestions)
 A simple Python script for suggesting tags on Stack Exchange questions.
 
+For a full summary of setting up the bot, visit [the wiki](https://github.com/ArtOfCode-/TagSuggestions/wiki).
+
 ## Setup
 TagSuggestions is written in Python 3, so you will need Python 3 installed. (Specifically, I wrote it in 3.4.3, if you care or need to know.)
 
