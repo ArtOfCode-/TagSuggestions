@@ -310,7 +310,7 @@ def parse_tags_response(response):
         tagNames.append(item["name"].replace("-", " "))
 
 
-# Algorithm revision 2015.11.13.26B
+# Algorithm revision 2015.11.16.27B
 def suggest_tags(title, body, tags, related_tags=None, verbose=False):
     """
     Suggests tags for a question, based on its body and current tags.
@@ -366,9 +366,13 @@ def suggest_tags(title, body, tags, related_tags=None, verbose=False):
         if tag in blacklistedTagNames and tag not in remove_tags:
             if verbose: print("Tag '{0}' in blacklist: remove".format(tag))
             remove_tags.append(tag)
+        blacklisted_string = " ".join(blacklistedTagNames)
+        if tag in blacklisted_string and tag not in remove_tags:
+            if verbose: print("Tag {0} is a superset of blacklisted tag: remove".format(tag))
+            remove_tags.append(tag)
         tags_string = " ".join(tags)
         if tag in tags_string and tag not in remove_tags:
-            if verbose: print("Tag '{0}' is a superset of question tag '{1}': remove".format(tag, question_tag))
+            if verbose: print("Tag '{0}' is a superset of question tag: remove".format(tag))
             remove_tags.append(tag)
 
     for tag in remove_tags:
