@@ -30,6 +30,8 @@ dbCredentials = {
     'name': None
 }
 
+siteName = ""
+
 
 def get_list_index(list_obj, item, alternative=None):
     try:
@@ -65,6 +67,7 @@ def populate_db_creds():
 def main():
     global apiManager
     global queryManager
+    global siteName
 
     db_available = populate_db_creds()
     if db_available:
@@ -84,12 +87,14 @@ def main():
     if "-s" in sys.argv or "--site" in sys.argv:
         index = get_list_index(sys.argv, "-s", "--site")
         if len(sys.argv) >= index + 2:
-            apiManager = APIRequester(sys.argv[index + 1])
+            siteName = sys.argv[index + 1]
         else:
             print("[System] [WARNING] No site specified after -s or --site switch.")
-            apiManager = APIRequester("hardwarerecs")
+            siteName = "hardwarerecs"
     else:
-        apiManager = APIRequester("hardwarerecs")
+        siteName = "hardwarerecs"
+
+    apiManager = APIRequester(siteName)
 
     if db_available:
         get_blacklisted_tags()
@@ -171,7 +176,9 @@ def get_blacklisted_tags():
     :return: None - but the blacklistedTagNames object is populated.
     """
     global queryManager
-    results = queryManager.query("SELECT TagName FROM BlacklistedTags")
+    results = queryManager.query("SELECT TagName, SiteName FROM BlacklistedTags WHERE SiteName = '{sn}';", {
+        "sn": siteName
+    })
     for (tag) in results:
         blacklistedTagNames.append(tag)
     queryManager.dispose(results)
