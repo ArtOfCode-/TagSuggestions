@@ -70,6 +70,7 @@ def main():
     global siteName
 
     db_available = populate_db_creds()
+    print()
     if db_available:
         try:
             queryManager = QueryManager(dbCredentials['host'], dbCredentials['user'], dbCredentials['pass'],
@@ -98,6 +99,9 @@ def main():
 
     if db_available:
         get_blacklisted_tags()
+        print("{0} blacklisted tags for this site.".format(str(len(blacklistedTagNames))))
+        print()
+
     get_tags()
     print()
 
