@@ -17,7 +17,7 @@ INSERT INTO `TaggerBot`.`BlacklistedTags` (`Id`, `TagName`, `SiteName`) VALUES
     (DEFAULT, 'object', 'stackoverflow'),
     (DEFAULT, 'table', 'stackoverflow'),
     (DEFAULT, 'fuzzy', 'stackoverflow'),
-    (DEFAULT, 'java-server', 'stackoverflow'),
+    (DEFAULT, 'java server', 'stackoverflow'),
     (DEFAULT, 'advertising', 'stackoverflow'),
     (DEFAULT, 'spam', 'stackoverflow'),
     (DEFAULT, 'option', 'stackoverflow'),
