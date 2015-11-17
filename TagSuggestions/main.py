@@ -346,7 +346,8 @@ def suggest_tags(title, body, tags, related_tags=None, verbose=False):
                 suggested_tags[tag_name] = 2
 
     if related_tags is None:
-        related_tags = get_related_tags(tags)
+        temp_tags = tags
+        related_tags = get_related_tags(temp_tags)
 
     if related_tags is not None:
         for tag in iter(related_tags):
